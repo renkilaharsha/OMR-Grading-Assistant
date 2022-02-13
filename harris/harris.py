@@ -123,16 +123,16 @@ class HarrisCornerDetector:
 
         # "Make Derivatives"
 
-        pfilt = np.array([0.223755,0.552490,0.223755])
+        pfilt = np.array([0.223755, 0.552490, 0.223755])
         dfilt = np.array([0.453014, 0.0, -0.453014])
-        bfilt = 1/64 * np.array([1, 6, 15, 20, 15, 6, 1])
+        bfilt = 1/64 * np.array([1.0, 6.0, 15.0, 20.0, 15.0, 6.0, 1.0])
 
-        Ix = convolve1d(convolve1d(imf, pfilt, axis=0), dfilt, axis=0)
-        Iy = convolve1d(convolve1d(imf, pfilt, axis=1), dfilt, axis=1)
+        Ix = convolve1d(convolve1d(imf, pfilt, axis=1), dfilt, axis=1)
+        Iy = convolve1d(convolve1d(imf, pfilt, axis=0), dfilt, axis=0)
 
-        A = convolve1d(convolve1d(Ix ** 2, bfilt, axis=0), bfilt, axis=1)
-        B = convolve1d(convolve1d(Iy ** 2, bfilt, axis=0), bfilt, axis=1)
-        C = convolve1d(convolve1d(Ix * Iy, bfilt, axis=0), bfilt, axis=1)
+        A = convolve1d(convolve1d(Ix ** 2, bfilt, axis=1), bfilt, axis=0)
+        B = convolve1d(convolve1d(Iy ** 2, bfilt, axis=1), bfilt, axis=0)
+        C = convolve1d(convolve1d(Ix * Iy, bfilt, axis=1), bfilt, axis=0)
 
         log_image(A, "out1")
         log_image(B, "out2")
