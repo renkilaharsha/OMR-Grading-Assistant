@@ -209,11 +209,10 @@ class OMRDetection:
             for j in range(len(img_matrix[0])):
                 if (img_matrix[i][j] !=0):
                     row = i*np.cos(np.deg2rad(gradient_direction[i][j])) + j*np.sin(np.deg2rad(gradient_direction[i][j]))
-                    d = round(row)
-                    itheta = round(gradient_direction[i][j])
+                    d = int(round(row))
+                    itheta = int(round(gradient_direction[i][j]))
                     if(row<0):
-                        d = round(abs(row))
-                    #print(itheta,row)
+                        d = int(round(abs(row)))
                     hough_transform_coordinates[d][itheta]+=1
         return hough_transform_coordinates
 
