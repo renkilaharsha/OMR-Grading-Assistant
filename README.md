@@ -33,4 +33,7 @@ python3 inject.py "test-images/blank_form.jpg" "test-images/a-3_groundtruth.txt"
 python3 extract.py "injected_answers.jpg"  "output.txt"
 ```
 
+sample inject output:
+![inject](https://media.github.iu.edu/user/19421/files/17eeeecb-10d1-4925-84b2-51db10d2d2be)
+
 Any suggestions?........
