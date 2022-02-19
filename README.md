@@ -266,3 +266,104 @@ weighted avg       0.92      0.92      0.92      1171
 These could be *overly-optimistic* though, since these
 numbers include performance on augmented images.
 Nonetheless, our recall is quite good.
+
+---
+
+## Other Approaches - Harris Corner Detection + Non-Maximum Suppression
+
+(**Alexander worked on this.**)
+
+The `harris/` directory contains notes on this subproblem.
+
+- *In theory*: Answer boxes should have four corners,
+  so finding all the corners will probably be helpful.
+- *In practice*: There a a lot of things that look like corners
+  in these images. It's possible that if the boxes did not contain
+  letters (A, B, C, D, E) then this would work better.
+
+### (1) Harris Corner Implementation Notes
+
+This is implemented as a `harris` Python module. The `alpha` and `threshold` parameters are described in Chapter 4 of the
+Burger & Burge "Core Algorithms" book, then expanded with
+a Java implementation in Appendix B.2, starting on page 294.
+
+The implementation closely mirrors the Java implementation from
+the appendix, using similar data structures and names.
+
+```python
+from harris.harris import HarrisCornerDetectory
+from PIL import Image
+import numpy as np
+
+im = np.array(Image.open("docs/book_corners1.png"))
+
+hcd = HarrisCornerDetector(alpha=0.04, threshold=30000)
+corners = hcd.find_corners(im)
+```
+
+### (2) Harris Corner Demonstrations
+
+The image from the book is in `docs/book_corners1.png`. For the toy example it seems to work well:
+
+<details>
+<summary>Code for reproducing this figure</summary>
+
+```python
+from harris.harris import HarrisCornerDetector
+from PIL import Image
+import numpy as np
+
+im = np.array(Image.open("docs/book_corners1.png"))
+
+hcd = HarrisCornerDetector(alpha=0.04, threshold=30000)
+corners = hcd.find_corners(im)
+out = np.zeros(im.shape)
+
+for corner in corners:
+    x, y = corner.coords
+    out[x, y] = corner.q
+
+imout = Image.fromarray(out.astype(np.uint8))
+imout.save("docs/harris_examples/out.png")
+```
+
+</details>
+
+| Input Image | Harris Corner Activations |
+| :--- | :--- |
+| <img src="docs/book_corners1.png"> | <img src="docs/harris_examples/book_example_output.png"> |
+
+Unfortunately, even after tweaking the `alpha` and `threshold` parameters, there
+tend to be a huge number of corners that would be "*false positives*" for our use case. We're
+not interested in corners for letters or numbers, so this is seems way too noisy for finding
+the rows.
+
+<details>
+<summary>Code for reproducing this figure</summary>
+
+```python
+from harris.harris import HarrisCornerDetector
+from PIL import Image
+import numpy as np
+
+im = Image.open("test-images/a-27.jpg")
+crop = np.array(im.crop((154, 654, 564, 1148)))
+
+hcd = HarrisCornerDetector(alpha=0.04, threshold=30000)
+corners = hcd.find_corners(crop)
+
+out = np.zeros(crop.shape)
+
+for corner in corners:
+    x, y = corner.coords
+    out[x, y] = corner.q
+
+imout = Image.fromarray(out.astype(np.uint8))
+imout.save("docs/harris_examples/a-27-out.png")
+```
+
+</details>
+
+| Input Image | Harris Corner Activations |
+| :--- | :--- |
+| <img src="docs/harris_examples/a-27-crop.png" height=300> | <img src="docs/harris_examples/a-27-out.png" height=300> |
