@@ -1,5 +1,44 @@
-# hayesall-notes
 
+#harsha-notes
+I have implemented all the modules up to my knowledge.
+All the modules are implemented from scratch using numpy.
+
+Steps followed:
+- Image smoothing using gaussian filter.
+- Horizantal and Vertical edge detection using Sobel filter(3x3)
+- Non-maximum supression.
+- Hystereis/Edge linking. 
+- Hough Transform line finding.
+- Finding the intersection of lines using the lines extracted from above.
+- finding the no of pixels in the each box.
+- Filtering the box having non zero intensity pixel count greater than threshold.
+- Transfering the filtered boxes to output format 
+
+
+The program will take quite large amount of time like(3,4 minutes).
+Need to optimize and refactor the code.
+
+Grade operation is only implemented for shaded boxes not includes handwritten answers.(will update in next commit). As per i observed the grade operation is giving more than 90 % accuracy.
+
+Usage :
+```
+python3 grade.py "test-images/b-27.jpg"  "output.txt"
+```
+
+```
+python3 inject.py "test-images/blank_form.jpg" "test-images/a-3_groundtruth.txt" "injected_answers.jpg"
+```
+```
+python3 extract.py "injected_answers.jpg"  "output.txt"
+```
+
+sample inject output:
+![inject](https://media.github.iu.edu/user/19421/files/17eeeecb-10d1-4925-84b2-51db10d2d2be)
+
+Any suggestions?........
+=======
+
+# hayesall-notes
 I wanted to explore ways to convert the sequence of boxes into
 a value: `A`, `B`, `AB`, etc.
 
@@ -287,24 +326,6 @@ This is implemented as a `harris` Python module. The `alpha` and `threshold` par
 Burger & Burge "Core Algorithms" book, then expanded with
 a Java implementation in Appendix B.2, starting on page 294.
 
-
-I have implemented all the modules up to my knowledge.
-All the modules are implemented from scratch using numpy.
-
-Steps followed:
-- Image smoothing using gaussian filter.
-- Horizantal and Vertical edge detection using Sobel filter(3x3)
-- Non-maximum supression.
-- Hystereis/Edge linking. 
-- Hough Transform line finding.
-- Finding the intersection of lines using the lines extracted from above.
-- finding the no of pixels in the each box.
-- Filtering the box having non zero intensity pixel count greater than threshold.
-- Transfering the filtered boxes to output format 
-
-
-The program will take quite large amount of time like(3,4 minutes).
-Need to optimize and refactor the code.
 The implementation closely mirrors the Java implementation from
 the appendix, using similar data structures and names.
 
@@ -312,21 +333,12 @@ the appendix, using similar data structures and names.
 from harris.harris import HarrisCornerDetectory
 from PIL import Image
 import numpy as np
-Grade operation is only implemented for shaded boxes not includes handwritten answers.(will update in next commit). As per i observed the grade operation is giving more than 90 % accuracy.
 
 im = np.array(Image.open("docs/book_corners1.png"))
-Usage :
-```
-python3 grade.py "test-images/b-27.jpg"  "output.txt"
-```
 
 hcd = HarrisCornerDetector(alpha=0.04, threshold=30000)
 corners = hcd.find_corners(im)
 ```
-python3 inject.py "test-images/blank_form.jpg" "test-images/a-3_groundtruth.txt" "injected_answers.jpg"
-```
-```
-python3 extract.py "injected_answers.jpg"  "output.txt"
 
 ### (2) Harris Corner Demonstrations
 
@@ -354,8 +366,6 @@ imout = Image.fromarray(out.astype(np.uint8))
 imout.save("docs/harris_examples/out.png")
 ```
 
-sample inject output:
-![inject](https://media.github.iu.edu/user/19421/files/17eeeecb-10d1-4925-84b2-51db10d2d2be)
 </details>
 
 | Input Image | Harris Corner Activations |
@@ -396,3 +406,4 @@ imout.save("docs/harris_examples/a-27-out.png")
 | Input Image | Harris Corner Activations |
 | :--- | :--- |
 | <img src="docs/harris_examples/a-27-crop.png" height=300> | <img src="docs/harris_examples/a-27-out.png" height=300> |
+>>>>>>>>> Temporary merge branch 2
