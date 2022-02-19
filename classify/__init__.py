@@ -3,4 +3,4 @@
 # MIT License
 
 from .knn import KNNClassifier
-from .rule_based import HayesallRuleClassifier
+from .rule_based import RuleBasedIdentifier
