@@ -2,7 +2,6 @@ from PIL import Image
 import math
 import numpy as np
 from matplotlib.pyplot import cm
-import pandas as pd
 import matplotlib.pyplot as plt
 
 class OMRDetection:
