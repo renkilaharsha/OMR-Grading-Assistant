@@ -1,6 +1,5 @@
-# hayesall-notes
- harsha
 
+#harsha-notes
 I have implemented all the modules up to my knowledge.
 All the modules are implemented from scratch using numpy.
 
@@ -38,6 +37,8 @@ sample inject output:
 
 Any suggestions?........
 =======
+
+# hayesall-notes
 I wanted to explore ways to convert the sequence of boxes into
 a value: `A`, `B`, `AB`, etc.
 
@@ -405,3 +406,4 @@ imout.save("docs/harris_examples/a-27-out.png")
 | Input Image | Harris Corner Activations |
 | :--- | :--- |
 | <img src="docs/harris_examples/a-27-crop.png" height=300> | <img src="docs/harris_examples/a-27-out.png" height=300> |
+>>>>>>>>> Temporary merge branch 2
