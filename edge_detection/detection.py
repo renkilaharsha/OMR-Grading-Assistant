@@ -3,13 +3,20 @@ import math
 import numpy as np
 from matplotlib.pyplot import cm
 import matplotlib.pyplot as plt
+from classify.rule_based import RuleBasedIdentifier
+from classify.utils import make_crop
+import glob
 
 class OMRDetection:
-    def __init__(self,image_path,lowthesholdratio=0.7,highthresholdratio=0.9):
-        self.image = Image.open(image_path).convert('L') #convert a gray scale
+    def __init__(self,image_path,output_file_path,lowthesholdratio=0.7,highthresholdratio=0.9):
+        self.image_color = Image.open(image_path)
+        self.image = self.image_color.convert('L') #convert a gray scale
         self.width, self.height = self.image.size
-        print(self.height,self.width)
+        self.output_file_path = output_file_path
+        print("Image is %s pixels wide." % self.width)
+        print("Image is %s pixels high." % self.height)
         self.image_numpy = np.asarray(self.image)
+        self.identifier = RuleBasedIdentifier()
         self.low_threshold = lowthesholdratio
         self.high_threshold  =highthresholdratio
         self.vertical_sobel  = np.array([[1, 2, 1], [0, 0, 0], [-1, -2, -1]])
@@ -40,6 +47,11 @@ class OMRDetection:
         return img
 
     def angle_normalizer(self,grad_direction):
+        """
+        This function normalizes the ange which i sgreater than 180 to in between 0 to 180
+        :param grad_direction:
+        :return:
+        """
         arr = grad_direction.copy()
         for i in range(len(arr)):
             for j in range(len(arr[0])):
@@ -124,20 +136,27 @@ class OMRDetection:
                     nms_lt[i,j]=1
 
         edge_link = nms_lt
-        self.sub_image = self.image_substarction(edge_link,255-self.image_numpy)
-        #edge_link = np.multiply(self.image_numpy,nms_ht)
         return edge_link
 
     def image_substarction(self,edge_image,image):
         sub_image = np.zeros((edge_image.shape))
         for i in range(len(sub_image)):
             for j in range(len(sub_image[0])):
-                if(sub_image[i,j]!=1):
+                if(edge_image[i,j]!=1):
                     sub_image[i,j] = image[i,j]
         return sub_image
 
 
     def image_smoothing(self,array,pad,kernal_size,sigma,is_log=False):
+        """
+        This function makes the image_smoothing by applying gaussian filter on the
+        :param array:
+        :param pad:
+        :param kernal_size:
+        :param sigma:
+        :param is_log:
+        :return:
+        """
         smooth_image  =  np.zeros(array.shape)
         gauss_kernal = self.gaussian_kernal(kernal_size,sigma,is_log)
         for i in range(pad,len(array)-(kernal_size-1)):
@@ -190,7 +209,6 @@ class OMRDetection:
                 edge_image[i,j] = self.check_potential_edge(gradient_magnitude_xy,gradient_direction_xy,i,j)
         print("Non max supression of edges completed")
         #hough_transform(conv_array)
-
         im = Image.fromarray(edge_image)
         plt.imsave("output/{}_non_maximum_supression.png".format(self.image_name),im,cmap=cm.gray)
         edge_image = self.edge_linking(edge_image,pad,kernal_size)
@@ -239,6 +257,24 @@ class OMRDetection:
             i += index - start + 1
             flag = 1
 
+    def modifying_lines_spaces(self,lines):
+        for i in range(0,len(lines)-1):
+            if(lines[i]-lines[i-1]>40):
+                if(lines[i+1]-lines[i]<20):
+                    lines[i] = lines[i]-(30-(lines[i+1]-lines[i]))
+
+    def remove_extra_vertical_lines(self,vertical):
+        k = []
+        for i in range(len(vertical)-1):
+            if(vertical[i+1]-vertical[i] <=5):
+                if i  not in k:
+                    k.append(i)
+                if i+1 not in k:
+                    k.append(i+1)
+        for i in range(len(k)):
+            vertical.pop(k[0]-i)
+
+
     def remove_extra_lines(self,horizantal):
         k = []
         for i in range(len(horizantal)):
@@ -269,32 +305,48 @@ class OMRDetection:
             horiz = horiz + 2
             questions += 1
 
-        for questions in question_dict:
-            print(questions, " : ", question_dict[questions])
         return question_dict
 
-    def extract_markings(self,voting,edge_image,filename):
+    def extract_answers_classifier(self,question_coordinates,filename):
+        keys = sorted(question_coordinates.keys())
+        file1 = open(filename, "w")
+        for i in keys:
+            crop = make_crop(self.image_color,question_coordinates[i][0][0]-130, question_coordinates[i][0][1]-5)
+            #plt.imshow(crop)
+            #plt.show()
+            answer = self.identifier.identify(i, crop)
+            file1.write("{} {}\n".format(str(i), " ".join(answer.split(" ")[1:])))
+        file1.close()
+
+    def extract_markings(self,voting,edge_image):
         lines_array = np.zeros((voting.shape))
         self.detect_vertical_horizantal_lines(lines_array,voting,0)
         self.detect_vertical_horizantal_lines(lines_array,voting,90)
         horizantal = list(np.where(lines_array[:, 0] == 1)[0])
         vertical = list(np.where(lines_array[:, 90] == 1)[0])
         self.remove_extra_lines(horizantal)
+        if(len(vertical)>30):
+            self.remove_extra_vertical_lines(vertical)
+
+        self.modifying_lines_spaces(vertical)
+        self.modifying_lines_spaces(horizantal)
+        #print(vertical)
         print("No of horizantal lines : ",len(horizantal), " , No of vertical lines : ", len(vertical))
         question_coordinates = self.extract_coordinates(horizantal,vertical)
         marking_dict = self.get_pixel_markings(edge_image, horizantal, vertical)
         keys = sorted(marking_dict.keys())
 
-        file1 = open(filename, "w")
+        file1 = open("output/hardthreshold_output_{}.txt".format(self.image_name), "w")
         for i in keys:
             file1.write("{} {}\n".format(str(i), marking_dict[i]))
         file1.close()
+
         return question_coordinates, marking_dict
 
     def count_pixels(self,v1, h1, v2, h2, image):
         sum = 0
-        for i in range(v1, v2):
-            for j in range(h1, h2):
+        for i in range(v1+5, v2-5):
+            for j in range(h1+5, h2-5):
                 if (image[j, i] > 0):
                     sum += 1
         return sum
@@ -365,48 +417,94 @@ class OMRDetection:
         im = Image.fromarray(array)
         plt.imsave(injection_file, im, cmap=cm.gray)
 
+    def make_crop(self, x, y,x1,y1):
+        """Make a fixed-size crop starting from the top-left corner of an image.
 
-    def get_box_marked_lables(self,pixeles_highlited):
-        print(pixeles_highlited)
-        sorted_index = np.argsort(pixeles_highlited)
+        Arguments:
+            image: PIL image where the `crop` method is defined
+            x: Top-left `x` coordinate
+            y: Top-left `y` coordinate
+
+        Returns:
+            (44, 400) numpy array at the location
+        """
+        return np.array(self.image.crop((x, y, x1, y1)))
+
+    def get_box_marked_lables(self,pixeles_highlited,wrong_markings):
+        #print(pixeles_highlited)
         labels = []
-        for i in range(len(sorted_index)):
-            threshold = 50
-            max = np.max(pixeles_highlited)
+        for i in range(len(pixeles_highlited)):
+            threshold = 5
+            if (pixeles_highlited[i]<= threshold):
+                #print(pixeles_highlited[i])
+                if (self.lable_dict[i] not in labels):
+                    labels.append(self.lable_dict[i])
+        if(len(labels)==0):
+            lab  = np.argsort(pixeles_highlited)[0]
+            #print(lab)
+            if(pixeles_highlited[lab] !=0):
+                labels.append(self.lable_dict[lab])
 
-            if (max-pixeles_highlited[sorted_index[i]] < threshold):
-                print(pixeles_highlited[sorted_index[i]])
-                if (self.lable_dict[sorted_index[i]] not in labels):
-                    labels.append(self.lable_dict[sorted_index[i]])
-        label = "".join(sorted(labels))
-        print("Label : " ,label)
+        if(wrong_markings):
+            labels = sorted(labels)
+            labels.append(" X")
+        label = "".join(labels)
+        #print("Label : " ,label)
         return label
+
+    def get_wrong_markings(self,vertical_left,vertical_right,horizantal_up, horizantal_down,image):
+        sum = 0
+        #print(vertical_left-130, vertical_left-(vertical_right-vertical_left)-35)
+        crop = self.make_crop(vertical_left-130,horizantal_up,vertical_left-(vertical_right-vertical_left)-35,horizantal_down)
+        #plt.imshow(crop)
+        #plt.show()
+        for i in range(vertical_left-130, vertical_left-(vertical_right-vertical_left)-35 ):
+            for j in range(horizantal_up, horizantal_down):
+                if (image[j, i] > 0):
+                    sum += 1
+
+        #print("Wrong Answer sum : ",sum)
+        if(sum>10):
+
+            return True
+        else:
+            return False
 
     def get_pixel_markings(self,image, horizantal, vertical):
         marking_dict = dict()
         questions = 1
         verti = 0
         horiz = 0
+        #print(vertical)
         while questions < 30:
             if (questions < 28):
                 for p in range(3):
                     pixels_higlighted = []
+                    wrong_markings = self.get_wrong_markings(vertical[verti],vertical[verti+1],horizantal[horiz],horizantal[horiz+1],image)
                     for i in range(0, 10, 2):
+                        crop = self.make_crop(vertical[verti + i], horizantal[horiz],
+                                              vertical[verti + i + 1], horizantal[horiz + 1])
+
                         pixels_higlighted.append(
                             self.count_pixels(vertical[verti + i], horizantal[horiz], vertical[verti + i + 1],
-                                         horizantal[horiz + 1] , self.sub_image))
-                    print("question no : ",questions + p * 29)
-                    marking_dict[questions + p * 29] = self.get_box_marked_lables(pixels_higlighted)
+                                         horizantal[horiz + 1] ,image ))
+
+                    #print("question no : ",questions + p * 29)
+                    marking_dict[questions + p * 29] = self.get_box_marked_lables(pixels_higlighted,wrong_markings)
                     verti = verti + 10
             else:
                 for p in range(2):
                     pixels_higlighted = []
+                    wrong_markings = self.get_wrong_markings(vertical[verti],vertical[verti+1],horizantal[horiz],horizantal[horiz+1],image)
+
                     for i in range(0, 10, 2):
+                        crop = self.make_crop(vertical[verti + i], horizantal[horiz],
+                                              vertical[verti + i + 1], horizantal[horiz + 1])
                         pixels_higlighted.append(
                             self.count_pixels(vertical[verti + i], horizantal[horiz], vertical[verti + i + 1],
-                                              horizantal[horiz + 1] + 5, self.sub_image))
-                    print("question no : ",questions + p * 29)
-                    marking_dict[questions + p * 29] = self.get_box_marked_lables(pixels_higlighted)
+                                              horizantal[horiz + 1] + 5, image))
+                    #print("question no : ",questions + p * 29)
+                    marking_dict[questions + p * 29] = self.get_box_marked_lables(pixels_higlighted,wrong_markings)
                     verti = verti + 10
 
             verti = 0
@@ -414,19 +512,18 @@ class OMRDetection:
             questions += 1
         return marking_dict
 
-
+    def omr_extraction(self):
+        edge_image, gradient_xy = self.edge_detection(gauss_sigma=5)
+        voting = self.hough_transform_voting(edge_image, gradient_xy)
+        question_coordinates, marking_dict = self.extract_markings(voting, edge_image)
+        self.extract_answers_classifier(question_coordinates, self.output_file_path)
 if __name__ == '__main__':
-    image_path = "test-images/c-18.jpg"
-    #image_path = "example.jpg"
-    #image_path = "canny.png"
-    omr = OMRDetection(image_path)
-    edge_image,gradient_xy = omr.edge_detection(gauss_sigma=5)
-    voting = omr.hough_transform_voting(edge_image,gradient_xy)
-    question_coordinates, marking_dict = omr.extract_markings(voting,edge_image)
+    for image_path in glob.glob("test-images/*.jpg"):
+        print(image_path)
+        #image_path = "example.jpg"
+        #image_path = "canny.png"
+        omr = OMRDetection(image_path, image_path)
+        omr.omr_extraction()
 
-#edge_image = np.multiply(edge_image,I)
-#edge_image[edge_image==1]=255
-
-
-#plt.imshow(im3)
+        del omr
 

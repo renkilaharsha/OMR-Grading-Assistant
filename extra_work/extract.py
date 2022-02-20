@@ -1,5 +1,5 @@
 import sys
-from detection import OMRDetection
+from edge_detection.detection import OMRDetection
 
 
 

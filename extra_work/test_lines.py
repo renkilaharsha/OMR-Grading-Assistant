@@ -2,11 +2,11 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import image
-df = pd.read_csv("voting_a-48.csv")
+df = pd.read_csv("voting_a-27.csv")
 print(df.shape)
 k = df.to_numpy()
 #print(k)
-data = image.imread('test-images/a-48.jpg')
+data = image.imread('test-images/a-27.jpg')
 
 array = np.zeros((k.shape))
 ind = np.unravel_index(np.argsort(k, axis=None), k.shape)
