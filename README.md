@@ -9,25 +9,25 @@ Edge Detection
 - Image smoothing using gaussian filter.
 
 
-	- The 3X3 gaussian filter is used. 
+	- The 3X3 gaussian filter is used.
 	- There is another option in the smooting of an image usage of Laplacian of Gaussian.
 	 	- smooth_image = self.image_smoothing(array,pad,kernal_size,gauss_sigma,is_log=False)
 	- ![smoothing](https://media.github.iu.edu/user/19421/files/c18bb78b-0c3c-46a2-9191-5ae33759e325)
- 
+
 - Horizantal and Vertical edge detection using Sobel filter(3x3)
 
-	- Computed the G_x and G_y using the Sobel horizantal and vertical filters. 
+	- Computed the G_x and G_y using the Sobel horizantal and vertical filters.
 	- The Gradient magnitude GM(image) = \sqrt{G_x^2 + G_y^2} and Gradient Directrion GD(Image) = tan(G_y/G_x) is computed.
 	- ![sobel edge detection](https://media.github.iu.edu/user/19421/files/d375bc74-0573-48c7-afcb-188a96f38f71)
 
-	
+
 - Non-maximum supression.
 	- Supressing the thick edge pixels using non-maximun supression algorithm using the Gradient direction and Gradient magnitude computed above.
 		- if current pixel gradent magnitute is greater than the neighbouring pixels in gradient direction then we consider that pixel else we will supress current pixel to zero.
 	- ![non-max_supression](https://media.github.iu.edu/user/19421/files/012b3e57-1bb7-4502-b27e-4a8519367135)
 
 - Hystereis/Edge linking.
-	- Non-maximum supression will not eliminate the noise to get rid of the noise in the edge image. 
+	- Non-maximum supression will not eliminate the noise to get rid of the noise in the edge image.
 	- We defined the maximum threshold and minimum threshold for the gradient magnitute. The pixels graeter than max threshold will considered as edge pixels and ignoring less than low threshold pixels. For pixels magnitude in between low and high threshold , if that pixel in connected to high  threshold edge pixel with in the 8 neighbourhood pixels then it is considered as edge pixel else non edge pixel.
 	- The High threshold is 0.9 of max gradient magnitude and 0.7 of max gradient magnitude as low threshold. These are fixed by doing different trail and error runs.
 	- ![final edge detection](https://media.github.iu.edu/user/19421/files/e126d3a6-5204-4cd3-8e07-ab911290c684)
@@ -37,11 +37,11 @@ Line Detection
 - Hough Transform line finding.
 	- After the Hysteresis/Edge linking we have the final set of edge image pixels and their corresponding edge gradients.
 	- Hough transform find the lines in Polar space instead of Cartesian space.
-	- Since we know the gradient diretion of each edge pixel instead of searching for all theta(-180,180) for particular x,y(cartesian) we are only finding the sin curves passing through the   
+	- Since we know the gradient diretion of each edge pixel instead of searching for all theta(-180,180) for particular x,y(cartesian) we are only finding the sin curves passing through the
 - Finding the intersection of lines using the lines extracted from above.
 - finding the no of pixels in the each box.
 - Filtering the box having non zero intensity pixel count greater than threshold.
-- Transfering the filtered boxes to output format 
+- Transfering the filtered boxes to output format
 
 
 The program will take quite large amount of time like(3,4 minutes).
@@ -336,6 +336,108 @@ Nonetheless, our recall is quite good.
 
 ---
 
+## Template Matching, Signal Processing, and Interpolation
+
+**Problem**: We needed a robust way to find the "rows" in an image.
+
+**Solution**: One way to find rows is through applying a **correlation coefficient template matching**
+approach, tuning a threshold to find areas with high correlation, finding the top-three peaks to
+signal where the columns are, then linearly interpolating in case some rows were thrown out.
+
+---
+
+### (1) Template Matching with three kernels
+
+We'll apply the **Correlation Coefficient Template Matching** approach
+where we estimate the correlation between a "template" image (R) and
+a "search" image (I).
+
+> Wilhelm Burger and Mark J. Burge. "*Principles of Digital Image
+> Processing: Core Algorithms*,"
+> (Chapter 11) *Comparing Images*, pp. 258-264.
+
+**Correlation Coefficient Template Matching** has two parameters:
+
+- *The Template* (R): A template to search (I) for
+- *Correlation Threshold*: Return matches greater than some threshold (e.g. 0.5-0.9)
+
+---
+
+#### (1.1) The Template
+
+"*Periods next to a number*" perfectly correlate with the regions of the image we want.
+
+We'll try three approaches: K1, K2, K3 (there's nothing special about the ordering, it's just the order I tried them in).
+
+- `K1`: A period with part of the "A" box
+- `K2`: A period
+- `K3`: A period with **all** 1-pixel thickness portion of the "A" box
+
+| K1 | K2 | K3 |
+| :---: | :---: | :---: |
+| <img src="docs/template_matching_examples/k1.png"> | <img src="docs/template_matching_examples/k2.png"> | <img src="docs/template_matching_examples/k3.png"> |
+
+Directly looking for these in a noisy image did not seem likely to be robust, so I applied a Gaussian blur filter (`template_matching.filters.blur_filter`)
+to the kernels:
+
+| K1 + Blur | K2 + Blur | K3 + Blur |
+| :---: | :---: | :---: |
+| <img src="docs/template_matching_examples/k1-blur.png"> | <img src="docs/template_matching_examples/k2-blur.png"> | <img src="docs/template_matching_examples/k3-blur.png"> |
+
+| Original Image | Blurred |
+| :-----: | :-----: |
+| <img src="docs/template_matching_examples/small_demo_example.png" width=400> | <img src="docs/template_matching_examples/small_demo_example_blurred.png" width=400> |
+
+For example, here is the correlation between our blurred input image
+and the blurred `K3` kernel. Areas with high intensity have high correlation
+with the kernel:
+
+<img src="docs/template_matching_examples/small_demo_example_matches.png" width=850>
+
+---
+
+#### (1.2) The Correlation Threshold + Signal Processing
+
+These three figures show (**Top**) a heatmap for K1, K2, and K3 as the threshold increases.
+(**Bottom**) The 1D signal sums each column and convolves the result with a
+Gaussian filter: estimating the "strength" of each column. As the threshold increases,
+the signal tends to converge toward having 3-peaks, corresponding to the three columns
+where periods and boxes occur:
+
+<img src="docs/template_matching_examples/k1_kernel_signal.gif" width=500>
+<img src="docs/template_matching_examples/k2_kernel_signal.gif" width=500>
+<img src="docs/template_matching_examples/k3_kernel_signal.gif" width=500>
+
+- **Takeaway 1**: All three templates seem reasonable after tuning the correlation threshold and applying non-maximum suppression.
+- **Takeaway 2**: We can ignore everything outside the strongest peaks in the correlation matrix.
+
+In practice, `K3` appears to have the widest range of thresholds (0.65 - 0.9) and seems fairly resistent to finding
+false positives. This might be because a "*period and the left pixels of the A box* are one of the most discriminative
+features for identifying rows.
+
+---
+
+### (2) Interpolation to Resist Noisy Inputs
+
+**Problem**: Imagine that noise in the input image causes our template
+matching approach to miss a row.
+
+Imagine the image still contains all the filled in "answers," but
+some periods and boxes are missing:
+
+<img src="docs/template_matching_examples/corrupted_example.png" width=850>
+
+The rows should be relatively evenly spaced horizontally and vertically, so we can interpolate for where
+the rows are likely to be, even without perfect information.
+
+(**Top**): Template matching on the "corrupted" example.
+(**Middle**): 1D signal estimating strength of columns, described earlier.
+(**Bottom**): Noise removal + linear interpolation for missing examples.
+
+<img src="docs/template_matching_examples/k3_corrupted_images.gif" width=850>
+
+---
+
 ## Other Approaches - Harris Corner Detection + Non-Maximum Suppression
 
 (**Alexander worked on this.**)
@@ -434,4 +536,3 @@ imout.save("docs/harris_examples/a-27-out.png")
 | Input Image | Harris Corner Activations |
 | :--- | :--- |
 | <img src="docs/harris_examples/a-27-crop.png" height=300> | <img src="docs/harris_examples/a-27-out.png" height=300> |
->>>>>>>>> Temporary merge branch 2
