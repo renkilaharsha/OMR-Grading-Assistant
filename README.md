@@ -60,11 +60,11 @@ Line Detection
 - finding the no of pixels in the each box.
 	- Observing the out put of the images after hysteris/edge linking, the pixels in options marked are removed.
 	- ![options](https://media.github.iu.edu/user/19421/files/13c43e25-b15b-4f89-a16f-d6a6794f0aff),![original_option](https://media.github.iu.edu/user/19421/files/60b656d5-064f-457b-9914-7cf75f1e0c57)
-	- 
-  	
+	-
+
 - Filtering the box having  highest zero intensity pixel count.
 - Finding the no of pixels non-zero intensity pixels of every question left to the option A. and question no 1. 59, etc..
-- Transfering the filtered boxes to output format 
+- Transfering the filtered boxes to output format
 	- ![final_extraction](https://media.github.iu.edu/user/19421/files/4eb9b8ea-060c-4adc-a051-e9df338f8504)
 
 The program will take quite large amount of time like(90-100seconds).
@@ -457,6 +457,35 @@ the rows are likely to be, even without perfect information.
 (**Bottom**): Noise removal + linear interpolation for missing examples.
 
 <img src="docs/template_matching_examples/k3_corrupted_images.gif" width=850>
+
+---
+
+### (3) Robustness to Translation, Rotation, Noise
+
+- **Translation**: Good between (-100, 100) pixels in both x/y directions.
+- **Rotation**: I was testing with PIL's `Image.rotate` method, and
+  was amazed how even small rotations (-0.005, 0.005) could cause
+  problems. It appears that problems arise from the non-maximum
+  suppression step: rotations seem to cause multiple local maxima
+  within small regions.
+- **OR Noise**: Randomly sample binomial noise, and turn pixels white
+  with `p` probability. Good up to `0.3`, but more pronounced for images
+  that are low-contrast to begin with (e.g. `a-3.jpg`)
+- **XOR Noise** Randomly sample binomial noise, and XOR a pixel with `p`
+  probability (white -> black, black -> white). Even small amounts of
+  XOR noise (e.g. 0.01) cause issues.
+
+Some examples for applying noise to images are below.
+`OR` noise seems fairly mild as long as we don't randomly turn more than
+~30% of pixels white (most of the pixels are white already, so it's unlikely
+to cause major problems after blurring). `XOR` noise is incredibly damaging,
+if we randomly invert ~1% of pixels, it grows difficult to determine where
+the templates are.
+
+| Noise Type | Low Noise | High Noise |
+| :---- | :---: | :---: |
+| XOR | <img src="docs/template_matching_examples/a-3-with-0.01-xor.png" height=250> | <img src="docs/template_matching_examples/a-3-with-0.05-xor.png" height=250> |
+| OR | <img src="docs/template_matching_examples/b-27-with-0.3-or-noise.png" height=250> | <img src="docs/template_matching_examples/a-3-with-0.35-or-noise.png" height=250> |
 
 ---
 
