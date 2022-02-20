@@ -41,23 +41,34 @@ class RuleBasedIdentifier:
                 "\t```"
             )
 
-    def identify(self, number, image):
-        """Identify the letters and whether a handwritten letter is in the left."""
+    def identify(self, number, image, classifier=False, handwritten_threshold=760_000, bubble_threshold=500_000):
+        """Identify the letters and whether a handwritten letter is in the left.
 
-        # TODO(hayesall): Tuneable parameters:
-        #   - Threshold for the bubbles
+        Arguments
+            number: The number associated with this image
+            image: The image to be classified
+            classifier: Whether to use the NaiveBayesClassifier (or not)
+            handwritten_threshold: The threshold for a handwritten letter
+            bubble_threshold: The threshold for a "bubble" portion
+
+        Returns
+            A string of the form '44 ABC x', where 'x' represents a "handwritten" portion
+        """
 
         if not isinstance(image, np.ndarray):
             image = np.array(image)
 
         left, _, right = split_crop(image)
 
-        handwritten = self.model.predict(
-            (left > 128).flatten().reshape(1, -1)
-        )
-
         a, b, c, d, e = split_right(right)
-        bubbles = onehot_to_label([np.sum(k) < 500_000 for k in [a, b, c, d, e]])
+        bubbles = onehot_to_label([np.sum(k) < bubble_threshold for k in [a, b, c, d, e]])
+
+        if classifier:
+            handwritten = self.model.predict(
+                (left > 128).flatten().reshape(1, -1)
+            )
+        else:
+            handwritten = [np.sum(left) < handwritten_threshold]
 
         if handwritten[0]:
             return f"{number} {bubbles} x"
