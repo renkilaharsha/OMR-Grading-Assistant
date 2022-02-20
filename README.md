@@ -404,9 +404,11 @@ Gaussian filter: estimating the "strength" of each column. As the threshold incr
 the signal tends to converge toward having 3-peaks, corresponding to the three columns
 where periods and boxes occur:
 
-<img src="docs/template_matching_examples/k1_kernel_signal.gif" width=500>
-<img src="docs/template_matching_examples/k2_kernel_signal.gif" width=500>
-<img src="docs/template_matching_examples/k3_kernel_signal.gif" width=500>
+| Kernel | Effect of Varying the Threshold |
+| :----- | :----: |
+| `K1` | <img src="docs/template_matching_examples/k1_kernel_signal.gif" width=600> |
+| `K2` | <img src="docs/template_matching_examples/k2_kernel_signal.gif" width=600> |
+| `K3` | <img src="docs/template_matching_examples/k3_kernel_signal.gif" width=600> |
 
 - **Takeaway 1**: All three templates seem reasonable after tuning the correlation threshold and applying non-maximum suppression.
 - **Takeaway 2**: We can ignore everything outside the strongest peaks in the correlation matrix.
