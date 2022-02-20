@@ -1,5 +1,72 @@
-# hayesall-notes
 
+# harsha-notes
+All the modules are implemented from scratch using numpy, pillow.
+
+OMR Detection Steps followed:
+
+Edge Detection
+============
+- Image smoothing using gaussian filter.
+
+
+	- The 3X3 gaussian filter is used. 
+	- There is another option in the smooting of an image usage of Laplacian of Gaussian.
+	 	- smooth_image = self.image_smoothing(array,pad,kernal_size,gauss_sigma,is_log=False)
+	- ![smoothing](https://media.github.iu.edu/user/19421/files/c18bb78b-0c3c-46a2-9191-5ae33759e325)
+ 
+- Horizantal and Vertical edge detection using Sobel filter(3x3)
+
+	- Computed the G_x and G_y using the Sobel horizantal and vertical filters. 
+	- The Gradient magnitude GM(image) = \sqrt{G_x^2 + G_y^2} and Gradient Directrion GD(Image) = tan(G_y/G_x) is computed.
+	- ![sobel edge detection](https://media.github.iu.edu/user/19421/files/d375bc74-0573-48c7-afcb-188a96f38f71)
+
+	
+- Non-maximum supression.
+	- Supressing the thick edge pixels using non-maximun supression algorithm using the Gradient direction and Gradient magnitude computed above.
+		- if current pixel gradent magnitute is greater than the neighbouring pixels in gradient direction then we consider that pixel else we will supress current pixel to zero.
+	- ![non-max_supression](https://media.github.iu.edu/user/19421/files/012b3e57-1bb7-4502-b27e-4a8519367135)
+
+- Hystereis/Edge linking.
+	- Non-maximum supression will not eliminate the noise to get rid of the noise in the edge image. 
+	- We defined the maximum threshold and minimum threshold for the gradient magnitute. The pixels graeter than max threshold will considered as edge pixels and ignoring less than low threshold pixels. For pixels magnitude in between low and high threshold , if that pixel in connected to high  threshold edge pixel with in the 8 neighbourhood pixels then it is considered as edge pixel else non edge pixel.
+	- The High threshold is 0.9 of max gradient magnitude and 0.7 of max gradient magnitude as low threshold. These are fixed by doing different trail and error runs.
+	- ![final edge detection](https://media.github.iu.edu/user/19421/files/e126d3a6-5204-4cd3-8e07-ab911290c684)
+
+Line Detection
+============
+- Hough Transform line finding.
+	- After the Hysteresis/Edge linking we have the final set of edge image pixels and their corresponding edge gradients.
+	- Hough transform find the lines in Polar space instead of Cartesian space.
+	- Since we know the gradient diretion of each edge pixel instead of searching for all theta(-180,180) for particular x,y(cartesian) we are only finding the sin curves passing through the   
+- Finding the intersection of lines using the lines extracted from above.
+- finding the no of pixels in the each box.
+- Filtering the box having non zero intensity pixel count greater than threshold.
+- Transfering the filtered boxes to output format 
+
+
+The program will take quite large amount of time like(3,4 minutes).
+Need to optimize and refactor the code.
+
+Grade operation is only implemented for shaded boxes not includes handwritten answers.(will update in next commit). As per i observed the grade operation is giving more than 90 % accuracy.
+
+Usage :
+```
+python3 grade.py "test-images/b-27.jpg"  "output.txt"
+```
+
+```
+python3 inject.py "test-images/blank_form.jpg" "test-images/a-3_groundtruth.txt" "injected_answers.jpg"
+```
+```
+python3 extract.py "injected_answers.jpg"  "output.txt"
+```
+
+sample inject output:
+![inject](https://media.github.iu.edu/user/19421/files/17eeeecb-10d1-4925-84b2-51db10d2d2be)
+
+=======
+
+# hayesall-notes
 I wanted to explore ways to convert the sequence of boxes into
 a value: `A`, `B`, `AB`, etc.
 
@@ -367,3 +434,4 @@ imout.save("docs/harris_examples/a-27-out.png")
 | Input Image | Harris Corner Activations |
 | :--- | :--- |
 | <img src="docs/harris_examples/a-27-crop.png" height=300> | <img src="docs/harris_examples/a-27-out.png" height=300> |
+>>>>>>>>> Temporary merge branch 2
