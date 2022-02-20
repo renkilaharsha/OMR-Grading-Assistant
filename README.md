@@ -37,17 +37,40 @@ Line Detection
 - Hough Transform line finding.
 	- After the Hysteresis/Edge linking we have the final set of edge image pixels and their corresponding edge gradients.
 	- Hough transform find the lines in Polar space instead of Cartesian space.
-	- Since we know the gradient diretion of each edge pixel instead of searching for all theta(-180,180) for particular x,y(cartesian) we are only finding the sin curves passing through the   
+	- Since we know the gradient diretion of each edge pixel instead of searching for all theta(-180,180) for particular x,y(cartesian) we are only finding the sin curves passing through the  gradient(Taken reference from Computer Vision Algorithms and Applications by Richard Szeliski. page 253, Algorithm 4.2).
+	- ![hough transform algo](https://media.github.iu.edu/user/19421/files/995093ed-6d2e-4f3a-8797-c3e09e4ed119)
+	- Using the above mentioned algorithm filled the accumulator array(Hough Transform).
+	-  <b style='color:red'>How to find the number of lines using Accumulator array(Hough Transfom)?</b>.
+		-  The goal is to find the lines (58 horizantal and 30 vertical lines) passing through the each box.
+		-  Thresholding the number of votes for each row and theta in have to give the lines.
+		-  ![thresholding_hough transform](https://media.github.iu.edu/user/19421/files/32199151-af0f-49db-9a49-d96916fcf63e)
+		-  By experimenting with different different thresholds, observed that due to the letters in boxes E,D,B, the left end portion of these images having a straight line have the no of pixels more than the actual lines so the hough transforms finding lines over there and the thresholding not able to prove the lines which we want as seen in the above image.
+		-  Due to that instead of maximum thresholding of votes, tried to take minimum threshold and plotted all the lines.
+		-  This minimum thresholding will give all the horizantal and vertical lines, observed that the lines are covering the marking box of options.
+		-  ![all lines](https://media.github.iu.edu/user/19421/files/653449e2-2553-4215-a9db-e874d0434507)
+		-   So, for every set of continuous lines, taken start and end line as the lines passing through the bounding boxes of otions in both directions.
+		-  ![bounding_boxes](https://media.github.iu.edu/user/19421/files/3867a88d-e2c9-4f64-acf9-13a71bf11434)
+		- To validate the lines got from the above, tried to extract the lines for Blank form and tried to inject the answers from one of the ground_truth.txt and programatically marked the options.
+		-  ![inject](https://media.github.iu.edu/user/19421/files/17eeeecb-10d1-4925-84b2-51db10d2d2be)
+
 - Finding the intersection of lines using the lines extracted from above.
+	- Intersection of each horizantal and vertical lines found above are stored for extracting the answers.
+	- ![co-ordinates](https://media.github.iu.edu/user/19421/files/b8fccb26-f780-48b9-80ca-1fae213913fa)
+
 - finding the no of pixels in the each box.
-- Filtering the box having non zero intensity pixel count greater than threshold.
+	- Observing the out put of the images after hysteris/edge linking, the pixels in options marked are removed.
+	- ![options](https://media.github.iu.edu/user/19421/files/13c43e25-b15b-4f89-a16f-d6a6794f0aff),![original_option](https://media.github.iu.edu/user/19421/files/60b656d5-064f-457b-9914-7cf75f1e0c57)
+	- 
+  	
+- Filtering the box having  highest zero intensity pixel count.
+- Finding the no of pixels non-zero intensity pixels of every question left to the option A. and question no 1. 59, etc..
 - Transfering the filtered boxes to output format 
+	- ![final_extraction](https://media.github.iu.edu/user/19421/files/4eb9b8ea-060c-4adc-a051-e9df338f8504)
 
 
-The program will take quite large amount of time like(3,4 minutes).
+
+The program will take quite large amount of time like(90-100seconds).
 Need to optimize and refactor the code.
-
-Grade operation is only implemented for shaded boxes not includes handwritten answers.(will update in next commit). As per i observed the grade operation is giving more than 90 % accuracy.
 
 Usage :
 ```
@@ -61,8 +84,7 @@ python3 inject.py "test-images/blank_form.jpg" "test-images/a-3_groundtruth.txt"
 python3 extract.py "injected_answers.jpg"  "output.txt"
 ```
 
-sample inject output:
-![inject](https://media.github.iu.edu/user/19421/files/17eeeecb-10d1-4925-84b2-51db10d2d2be)
+
 
 =======
 
