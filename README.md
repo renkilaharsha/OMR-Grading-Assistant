@@ -1,3 +1,35 @@
+# Computer Vision Grading Assistant
+
+Our group strategy was to "*try multiple approaches in parallel and see which ones worked*."
+
+We concluded that multiple approaches work pretty well. Our "Hough Transform" approach and a "Template Matching" approach tended to produce the same results on the eight benchmark problems. Not everything made it into the final implementation, but we learned quite a bit along the way.
+
+### Alexander contributed:
+
+- **Naive Bayes for Handwritten Letter Recognition**
+  - Implemented the model learning/inference
+  - Created a training set of positive and negative examples
+  - Trained a model for detecting whether part of an image contained a handwritten letter
+  - After discussions with Harsha, we realized that this performed worse than a simple method based on thresholding the intensity of pixels in a region.
+- **Image Data Augmentation Approaches**
+  - `classify.data_augmentation.NoiseFactory`: produces random image augmentation to help increase the size of training data
+  - Random rotations
+  - Random affine transformations
+  - Random binomial noise based on XOR and OR pixels to make them more or less intense
+- **Rule-Based Classifiers**
+  - Threshold-based method for turning shaded boxes into A/B/C/D/E
+  - Utilities for cropping images into standard sized regions for: handwriting, problem number, box region.
+  - Implemented this as a Python class with an `.identify(number, image)`, where `image` is a cropped region.
+- **Harris Corner Detection**
+  - `harris.harris.HarrisCornerDetector` object
+  - After early experiments and discussion with Harsha, it appeared that this was not very helpful for finding the rows. This *did* get incorporated into the "bar code" finding of the `inject` / `extract` problem.
+- **Correlation Coefficient Template Matching**
+  - Functions for finding a template image in a bigger image
+- **Linear Interpolation of maximum suppression**
+- **Injection/extraction**
+  - Discussed an early idea with Ajinkya
+  - Alexander implemented a method for searching for a "corner" for where the "bar code" would occur, converted Ajinkya's Jupyter notebook into code, and wrote the final `inject.py` and `extract.py` scripts
+  - Implemented a simple obfuscation technique to make it more difficult for students to figure out the answers by looking at the bar code
 
 # harsha-notes
 All the modules are implemented from scratch using numpy, pillow.
