@@ -103,10 +103,6 @@ For a concrete example, here you can insert `b-27_groundtruth.txt` into `b-27.jp
 
 ```bash
 python inject.py test-images/b-27.jpg test-images/b-27_groundtruth.txt output.jpg
-
-         or
-
-python3 grade.py -m test-images/b-27.jpg test-images/b-27_groundtruth.txt output.jpg
 ```
 
 Extract it back out:
