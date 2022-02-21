@@ -31,6 +31,72 @@ We concluded that multiple approaches work pretty well. Our "Hough Transform" ap
   - Alexander implemented a method for searching for a "corner" for where the "bar code" would occur, converted Ajinkya's Jupyter notebook into code, and wrote the final `inject.py` and `extract.py` scripts
   - Implemented a simple obfuscation technique to make it more difficult for students to figure out the answers by looking at the bar code
 
+## Running the Code
+
+The three scripts implement the file-io requirements from the assignment instructions:
+
+```bash
+python3 grade.py form.jpg output.txt
+```
+
+```bash
+python3 inject.py form.jpg answers.txt injected.jpg
+```
+
+```bash
+python3 extract.py injected.jpg output.txt
+```
+
+For a concrete example, here you can insert `b-27_groundtruth.txt` into `b-27.jpg` with `inject.py`:
+
+```bash
+python inject.py test-images/b-27.jpg test-images/b-27_groundtruth.txt output.jpg
+```
+
+Extract it back out:
+
+```bash
+python extract.py output.jpg output.txt
+```
+
+And compare the results:
+
+```bash
+diff output.txt test-images/b-27_groundtruth.txt
+```
+
+Here, we note that there is a difference between the extracted values since we do not insert `x` values into the image, but record them for the ground-truth labels:
+
+```diff
+44c44
+< 44 ABC
+---
+> 44 ABC x
+70c70
+< 70 ABE
+---
+> 70 ABE x
+```
+
+## Other How-To's
+
+### Training a model
+
+The `NaiveBayesClassifier` ended up being too noisy to use in practice, but here's a way to train a model:
+
+```bash
+# Unzip the training data
+cd classify
+unzip training_data.zip
+cd ..
+
+# Fit a model
+python fit_model.py
+
+# The output model is saved to `model.pkl`. Move it into the `classify/` directory for later use:
+mv model.pkl classify/model.pkl
+```
+
 # harsha-notes
 All the modules are implemented from scratch using numpy, pillow.
 
