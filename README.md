@@ -4,6 +4,25 @@ Our group strategy was to "*try multiple approaches in parallel and see which on
 
 We concluded that multiple approaches work pretty well. Our "Hough Transform" approach and a "Template Matching" approach tended to produce the same results on the eight benchmark problems. Not everything made it into the final implementation, but we learned quite a bit along the way.
 
+1. **Correlation Coefficient Template Matching**
+
+	Accuracy on provided Test Images:
+	
+	![accuracy](https://media.github.iu.edu/user/19421/files/73dfcc56-c10c-4181-b87c-bbe080fbe072)
+	
+	- Time taken to get results is about 2-3 seconds.
+	
+2. **Edgedetection using canny and Hough transforms**
+
+
+	Accuracy on provided Test Images:
+	
+	![accuracy](https://media.github.iu.edu/user/19421/files/73dfcc56-c10c-4181-b87c-bbe080fbe072)
+	
+	- Time taken to get results is about 90-100 seconds.
+
+As two methods are providing the same accuracy numbers but the time taken to extract the answer is quite loger in the edge detection using the hough transform method. So, as default method Correlation Coefficient Template Matching is used. Another option *-m* is used to run the output using the othermethod. 
+	
 ### Alexander contributed:
 
 - **Naive Bayes for Handwritten Letter Recognition**
@@ -31,12 +50,25 @@ We concluded that multiple approaches work pretty well. Our "Hough Transform" ap
   - Alexander implemented a method for searching for a "corner" for where the "bar code" would occur, converted Ajinkya's Jupyter notebook into code, and wrote the final `inject.py` and `extract.py` scripts
   - Implemented a simple obfuscation technique to make it more difficult for students to figure out the answers by looking at the bar code
 
+### Harsha contributed:
+- Developing OMR extraction method using Canny and Hough transforms.
+- Testing accuracy of extraction with injected noise on test-image dataset.
+- Readme documentation.
+- Injecting the groungtruth answers into the blank omr to visualize the bounding boxes extracted.
+- Including the Alxander work(extraction method) in grade.py  as per assignment requirement.
+- Thresholding method on no of pixels in bounding boxes for extraction(It is not a robust method).
+
+	
 ## Running the Code
 
 The three scripts implement the file-io requirements from the assignment instructions:
 
 ```bash
 python3 grade.py form.jpg output.txt
+
+	or
+	
+python3 grade.py -m edht form.jpg output.txt
 ```
 
 ```bash
@@ -51,6 +83,10 @@ For a concrete example, here you can insert `b-27_groundtruth.txt` into `b-27.jp
 
 ```bash
 python inject.py test-images/b-27.jpg test-images/b-27_groundtruth.txt output.jpg
+
+         or
+	
+python3 grade.py -m test-images/b-27.jpg test-images/b-27_groundtruth.txt output.jpg
 ```
 
 Extract it back out:
@@ -102,8 +138,7 @@ All the modules are implemented from scratch using numpy, pillow.
 
 OMR Detection Steps followed:
 
-Edge Detection
-============
+## Edge Detection
 - Image smoothing using gaussian filter.
 
 
@@ -158,26 +193,27 @@ Line Detection
 - finding the no of pixels in the each box.
 	- Observing the out put of the images after hysteris/edge linking, the pixels in options marked are removed.
 	- ![options](https://media.github.iu.edu/user/19421/files/13c43e25-b15b-4f89-a16f-d6a6794f0aff),![original_option](https://media.github.iu.edu/user/19421/files/60b656d5-064f-457b-9914-7cf75f1e0c57)
-	-
+	- This method of finding no of image pixels in each will vary if the boxes are scaled and will not be recommended for robust model.
 
 - Filtering the box having  highest zero intensity pixel count.
 - Finding the no of pixels non-zero intensity pixels of every question left to the option A. and question no 1. 59, etc..
 - Transfering the filtered boxes to output format
 	- ![final_extraction](https://media.github.iu.edu/user/19421/files/4eb9b8ea-060c-4adc-a051-e9df338f8504)
+- Insted of counting no of pixels to mark the answers, cropping the portion of each question options and sending through the developed rule_naive bayes classifier developed by Alex help this edge detection algorithm to get the good results.
 
 The program will take quite large amount of time like(90-100seconds).
 Need to optimize and refactor the code.
 
-Usage :
+Usage: 
+
+Extracting the answers from OMR
 ```
-python3 grade.py "test-images/b-27.jpg"  "output.txt"
+python3 grade.py -m edht "test-images/b-27.jpg"  "output.txt"
 ```
 
+Injecting the answers to blank OMR
 ```
-python3 inject.py "test-images/blank_form.jpg" "test-images/a-3_groundtruth.txt" "injected_answers.jpg"
-```
-```
-python3 extract.py "injected_answers.jpg"  "output.txt"
+python3 extra-work/inject.py "test-images/blank_form.jpg" "test-images/a-3_groundtruth.txt" "injected_answers.jpg"
 ```
 
 
