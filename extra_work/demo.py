@@ -29,7 +29,7 @@ rbi = RuleBasedIdentifier()
 
 for image in ["a-3", "a-27", "a-30", "a-48", "b-13", "b-27", "c-18", "c-33"]:
 
-    im_raw = Image.open("test-images/" + image + ".jpg")
+    im_raw = Image.open("../test-images/" + image + ".jpg")
 
     # We'll only look in the bottom portion of an image, since there
     # should not be answers above 500 pixels.
@@ -58,7 +58,7 @@ for image in ["a-3", "a-27", "a-30", "a-48", "b-13", "b-27", "c-18", "c-33"]:
     ]
 
     # Estimate accuracy compared to ground truth file.
-    with open(f"test-images/{image}_groundtruth.txt", "r") as fh:
+    with open(f"../test-images/{image}_groundtruth.txt", "r") as fh:
         ground_truth = fh.read().splitlines()
 
     results = np.array(results)

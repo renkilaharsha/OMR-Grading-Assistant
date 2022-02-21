@@ -13,7 +13,7 @@ from harris.harris import HarrisCornerDetector
 from PIL import Image
 import numpy as np
 
-im = np.array(Image.open("docs/book_corners1.png"))
+im = np.array(Image.open("../docs/book_corners1.png"))
 
 hcd = HarrisCornerDetector(alpha=0.04, threshold=30000)
 
