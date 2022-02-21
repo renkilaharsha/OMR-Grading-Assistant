@@ -15,7 +15,7 @@ answers_txt = sys.argv[2]
 name_final_img = sys.argv[3]
 f = open(answers_txt,'r')
 list_all_ans = []
-
+# Convert txt file to one hot encoded array.
 dict_options = {'A':0,'B':1,'C':2,'D':3,'E':4}
 
 for i in range(85):
@@ -33,7 +33,7 @@ for i in list_all_ans:
     list_encoded.append([dict_options[char] for char in list_chars])
 
 np_arr_mcq = np.ones((5, 85))
-
+# Assign pixel value 200 for correct answers
 for idx1, chars in enumerate(list_encoded):
     for char in chars:
          np_arr_mcq[char, idx1] = 200
