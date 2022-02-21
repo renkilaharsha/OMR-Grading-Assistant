@@ -1,3 +1,101 @@
+# Computer Vision Grading Assistant
+
+Our group strategy was to "*try multiple approaches in parallel and see which ones worked*."
+
+We concluded that multiple approaches work pretty well. Our "Hough Transform" approach and a "Template Matching" approach tended to produce the same results on the eight benchmark problems. Not everything made it into the final implementation, but we learned quite a bit along the way.
+
+### Alexander contributed:
+
+- **Naive Bayes for Handwritten Letter Recognition**
+  - Implemented the model learning/inference
+  - Created a training set of positive and negative examples
+  - Trained a model for detecting whether part of an image contained a handwritten letter
+  - After discussions with Harsha, we realized that this performed worse than a simple method based on thresholding the intensity of pixels in a region.
+- **Image Data Augmentation Approaches**
+  - `classify.data_augmentation.NoiseFactory`: produces random image augmentation to help increase the size of training data
+  - Random rotations
+  - Random affine transformations
+  - Random binomial noise based on XOR and OR pixels to make them more or less intense
+- **Rule-Based Classifiers**
+  - Threshold-based method for turning shaded boxes into A/B/C/D/E
+  - Utilities for cropping images into standard sized regions for: handwriting, problem number, box region.
+  - Implemented this as a Python class with an `.identify(number, image)`, where `image` is a cropped region.
+- **Harris Corner Detection**
+  - `harris.harris.HarrisCornerDetector` object
+  - After early experiments and discussion with Harsha, it appeared that this was not very helpful for finding the rows. This *did* get incorporated into the "bar code" finding of the `inject` / `extract` problem.
+- **Correlation Coefficient Template Matching**
+  - Functions for finding a template image in a bigger image
+- **Linear Interpolation of maximum suppression**
+- **Injection/extraction**
+  - Discussed an early idea with Ajinkya
+  - Alexander implemented a method for searching for a "corner" for where the "bar code" would occur, converted Ajinkya's Jupyter notebook into code, and wrote the final `inject.py` and `extract.py` scripts
+  - Implemented a simple obfuscation technique to make it more difficult for students to figure out the answers by looking at the bar code
+
+## Running the Code
+
+The three scripts implement the file-io requirements from the assignment instructions:
+
+```bash
+python3 grade.py form.jpg output.txt
+```
+
+```bash
+python3 inject.py form.jpg answers.txt injected.jpg
+```
+
+```bash
+python3 extract.py injected.jpg output.txt
+```
+
+For a concrete example, here you can insert `b-27_groundtruth.txt` into `b-27.jpg` with `inject.py`:
+
+```bash
+python inject.py test-images/b-27.jpg test-images/b-27_groundtruth.txt output.jpg
+```
+
+Extract it back out:
+
+```bash
+python extract.py output.jpg output.txt
+```
+
+And compare the results:
+
+```bash
+diff output.txt test-images/b-27_groundtruth.txt
+```
+
+Here, we note that there is a difference between the extracted values since we do not insert `x` values into the image, but record them for the ground-truth labels:
+
+```diff
+44c44
+< 44 ABC
+---
+> 44 ABC x
+70c70
+< 70 ABE
+---
+> 70 ABE x
+```
+
+## Other How-To's
+
+### Training a model
+
+The `NaiveBayesClassifier` ended up being too noisy to use in practice, but here's a way to train a model:
+
+```bash
+# Unzip the training data
+cd classify
+unzip training_data.zip
+cd ..
+
+# Fit a model
+python fit_model.py
+
+# The output model is saved to `model.pkl`. Move it into the `classify/` directory for later use:
+mv model.pkl classify/model.pkl
+```
 
 # harsha-notes
 All the modules are implemented from scratch using numpy, pillow.
@@ -590,19 +688,16 @@ imout.save("docs/harris_examples/a-27-out.png")
 
 # Injection and Extraction Part (Ajinkya and Alexander)
 
-For the injection part we take the ground truth text file and insert the answers on a blank form using an encrypted bar code. For the injection part we create a 85 X 5 matrix where row corresponds to the question number and column corresponds to the option marked per question. We then go on to mark pixels in this array using a thresholding strategy. In order to ensure that the bar code is robust to changes in the pixel shifting, we use Haris corner detection to first get coordinates of the top left hand corner of the bar code and then we move on to extract the array to decode it. Inorder to ensure that students are not able to recognize patterns in the bar code, we randomly assign a roll value using a randomizer to roll the entire matrix so that the starting and the end point of the matrix are shifted thereby masking it evidently from students. To make it robust to pixel shifting we have blown up the size of each window from 1 X 1 to 4 X 4 inorder to deal with noise introduced by scanning the printed image. Thus we know 340 X 20 matrix which will also be robust to slanted barcode boxes as we take the mean for every window. 
+For the injection part we take the ground truth text file and insert the answers on a blank form using an encrypted bar code. For the injection part we create a 85 X 5 matrix where row corresponds to the question number and column corresponds to the option marked per question. We then go on to mark pixels in this array using a thresholding strategy. In order to ensure that the bar code is robust to changes in the pixel shifting, we use Haris corner detection to first get coordinates of the top left hand corner of the bar code and then we move on to extract the array to decode it. Inorder to ensure that students are not able to recognize patterns in the bar code, we randomly assign a roll value using a randomizer to roll the entire matrix so that the starting and the end point of the matrix are shifted thereby masking it evidently from students. To make it robust to pixel shifting we have blown up the size of each window from 1 X 1 to 4 X 4 inorder to deal with noise introduced by scanning the printed image. Thus we know 340 X 20 matrix which will also be robust to slanted barcode boxes as we take the mean for every window.
 
-For the decoding part we reverse the entire process and the secret rolling number for the array will be used to further get a list of answers from the barcode to create the text file. 
+For the decoding part we reverse the entire process and the secret rolling number for the array will be used to further get a list of answers from the barcode to create the text file.
 
-Images of the barcode after rolling obfuscation(before windowing):
+The bar code is added to the center region of an image:
 
-![image](https://media.github.iu.edu/user/18573/files/a3ef0f98-25cb-4ad6-a1c9-e0fdbf1f37a7)
+<img src="https://media.github.iu.edu/user/2186/files/13ae5094-9258-4580-9a0a-092440d118c1" height=250>
 
+This is loosely based on QR codes. The pattern in the top-left corner produces a high corner activation when passed to a Harris Corner Detector:
 
-Images of the barcode after expanding and rolling obfuscation:
-
-![WhatsApp Image 2022-02-20 at 8 47 30 PM](https://media.github.iu.edu/user/18573/files/886dc429-5bea-4bcc-acbe-c81e374b8de0)
-
-Answer Sheet after Injection:
-![injected](https://media.github.iu.edu/user/18573/files/9ed189a8-2134-4374-aa0e-bde7fa6e9ad6)
-
+| Original Image | Harris Corner Activations |
+| :---: | :---: |
+| ![image](https://media.github.iu.edu/user/2186/files/9655f315-3b7b-4720-abc1-0b3a82373224) | ![image](https://media.github.iu.edu/user/2186/files/773b6b65-7504-41d0-a2cd-57b87791febb) |

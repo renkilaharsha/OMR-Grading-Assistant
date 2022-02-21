@@ -117,16 +117,6 @@ def match_correlation_coefficient(image, template):
     return C
 
 
-def _window_sum_2d(image, window_shape):
-
-    window_sum = np.cumsum(image, axis=0)
-    window_sum = (window_sum[window_shape[0]:-1] - window_sum[:-window_shape[0] - 1])
-
-    window_sum = np.cumsum(window_sum, axis=1)
-    window_sum = (window_sum[:, window_shape[1]:-1] - window_sum[:, :-window_shape[1] - 1])
-
-    return window_sum
-
 
 def match_template(image, template):
     """Match a template to an image using normalized correlation.
@@ -163,6 +153,22 @@ def match_template(image, template):
            Cross Correlation", Proceedings of the SPIE (2001).
            :DOI:`10.1117/12.421129`
     """
+
+    # Academic Integrity Statement: notes below this were based on the
+    # `scikit-image` implementation of template matching. The version
+    # implemented above works but it significantly slower.
+    # Alexander has included additional discussion about this in the
+    # "Implementation Notes" section above.
+
+    def _window_sum_2d(image, window_shape):
+
+        window_sum = np.cumsum(image, axis=0)
+        window_sum = (window_sum[window_shape[0]:-1] - window_sum[:-window_shape[0] - 1])
+
+        window_sum = np.cumsum(window_sum, axis=1)
+        window_sum = (window_sum[:, window_shape[1]:-1] - window_sum[:, :-window_shape[1] - 1])
+
+        return window_sum
 
     if image.ndim < template.ndim:
         raise ValueError("Dimensionality of template must be less than or "
