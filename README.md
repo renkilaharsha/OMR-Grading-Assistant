@@ -75,7 +75,7 @@ As two methods are providing the same accuracy numbers but the time taken to ext
 - Testing accuracy of extraction with injected noise on test-image dataset.
 - Readme documentation.
 - Injecting the groungtruth answers into the blank omr to visualize the bounding boxes extracted.
-- Including the Alxander work(extraction method) in grade.py  as per assignment requirement.
+- Including the Alexander work(extraction method) in grade.py  as per assignment requirement.
 - Thresholding method on no of pixels in bounding boxes for extraction(It is not a robust method).
 
 
