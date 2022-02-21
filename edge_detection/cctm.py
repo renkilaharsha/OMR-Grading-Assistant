@@ -10,6 +10,7 @@ from classify.rule_based import RuleBasedIdentifier
 from classify.utils import make_crop
 
 from PIL import Image
+from PIL import ImageOps
 import numpy as np
 from scipy.ndimage import convolve1d
 import matplotlib.pyplot as plt
@@ -28,7 +29,7 @@ class CorrelationCoefficientTemplateMatching:
 
     def __init__(self,filename,output_filename):
         self.rbi = RuleBasedIdentifier()
-        self.raw_image = Image.open(filename)
+        self.raw_image = ImageOps.grayscale(Image.open(filename))
         self.outputfilename = output_filename
 
     def extract_markings(self):
