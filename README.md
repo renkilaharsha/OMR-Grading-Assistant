@@ -4,25 +4,46 @@ Our group strategy was to "*try multiple approaches in parallel and see which on
 
 We concluded that multiple approaches work pretty well. Our "Hough Transform" approach and a "Template Matching" approach tended to produce the same results on the eight benchmark problems. Not everything made it into the final implementation, but we learned quite a bit along the way.
 
+We estimated accuracy by creating `groundtruth` files for all eight images.
+
 1. **Correlation Coefficient Template Matching**
 
 	Accuracy on provided Test Images:
-	
+
 	![accuracy](https://media.github.iu.edu/user/19421/files/73dfcc56-c10c-4181-b87c-bbe080fbe072)
-	
+
 	- Time taken to get results is about 2-3 seconds.
-	
+
 2. **Edgedetection using canny and Hough transforms**
 
 
 	Accuracy on provided Test Images:
-	
+
 	![accuracy](https://media.github.iu.edu/user/19421/files/73dfcc56-c10c-4181-b87c-bbe080fbe072)
-	
+
 	- Time taken to get results is about 90-100 seconds.
 
-As two methods are providing the same accuracy numbers but the time taken to extract the answer is quite loger in the edge detection using the hough transform method. So, as default method Correlation Coefficient Template Matching is used. Another option *-m* is used to run the output using the othermethod. 
-	
+As two methods are providing the same accuracy numbers but the time taken to extract the answer is quite loger in the edge detection using the hough transform method. So, as default method Correlation Coefficient Template Matching is used. Another option *-m* is used to run the output using the othermethod.
+
+## **Steps of our Approach**:
+
+1. Use template matching + signal processing to find coordinates of rows (see [section for details](https://github.iu.edu/cs-b657-sp2022/hrenkila-hayesall-ajspahi-a1#template-matching-signal-processing-and-interpolation))
+
+	- Line Detection got equivalent results (see [section for details](https://github.iu.edu/cs-b657-sp2022/hrenkila-hayesall-ajspahi-a1#line-detection))
+		but was a little slower in practice
+
+2. Pass each coordinate to `RuleBasedClassifier` to perform thresholding on specific regions
+
+	- We originally thought a classifier (see [section for details](https://github.iu.edu/cs-b657-sp2022/hrenkila-hayesall-ajspahi-a1#handwritten-letter-detection))
+		would help here.
+	- It turned out that simple thresholds based on "how many white pixels occur in a given space" is a really
+		good technique here, so the classifier was unecessary.
+
+3. Report results in compliance with instructions
+
+---
+
+
 ### Alexander contributed:
 
 - **Naive Bayes for Handwritten Letter Recognition**
@@ -58,7 +79,7 @@ As two methods are providing the same accuracy numbers but the time taken to ext
 - Including the Alxander work(extraction method) in grade.py  as per assignment requirement.
 - Thresholding method on no of pixels in bounding boxes for extraction(It is not a robust method).
 
-	
+
 ## Running the Code
 
 The three scripts implement the file-io requirements from the assignment instructions:
@@ -67,7 +88,7 @@ The three scripts implement the file-io requirements from the assignment instruc
 python3 grade.py form.jpg output.txt
 
 	or
-	
+
 python3 grade.py -m edht form.jpg output.txt
 ```
 
@@ -85,7 +106,7 @@ For a concrete example, here you can insert `b-27_groundtruth.txt` into `b-27.jp
 python inject.py test-images/b-27.jpg test-images/b-27_groundtruth.txt output.jpg
 
          or
-	
+
 python3 grade.py -m test-images/b-27.jpg test-images/b-27_groundtruth.txt output.jpg
 ```
 
@@ -204,7 +225,7 @@ Line Detection
 The program will take quite large amount of time like(90-100seconds).
 Need to optimize and refactor the code.
 
-Usage: 
+Usage:
 
 Extracting the answers from OMR
 ```
