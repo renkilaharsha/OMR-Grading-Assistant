@@ -21,7 +21,7 @@ We concluded that multiple approaches work pretty well. Our "Hough Transform" ap
 	
 	- Time taken to get results is about 90-100 seconds.
 
-As two methods are providing the same accuracy numbers but the time taken to extract the answer is quite loger in the edge detection using the hough transform method. So, as default method Correlation Coefficient Template Matching is used. Another option *-m* is used to run the output using the othermethod. 
+As two methods are providing the same accuracy numbers but the time taken to extract the answer is quite longer in the edge detection using the hough transform method. So, as default method Correlation Coefficient Template Matching is used. Another option *-m* is used to run the output using the othermethod. 
 	
 ### Alexander contributed:
 
@@ -82,11 +82,7 @@ python3 extract.py injected.jpg output.txt
 For a concrete example, here you can insert `b-27_groundtruth.txt` into `b-27.jpg` with `inject.py`:
 
 ```bash
-python inject.py test-images/b-27.jpg test-images/b-27_groundtruth.txt output.jpg
-
-         or
-	
-python3 grade.py -m test-images/b-27.jpg test-images/b-27_groundtruth.txt output.jpg
+python inject.py test-images/b-27.jpg test-images/b-27_groundtruth.txt output.jpg	
 ```
 
 Extract it back out:
