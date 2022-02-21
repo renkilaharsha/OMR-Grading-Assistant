@@ -587,3 +587,18 @@ imout.save("docs/harris_examples/a-27-out.png")
 | Input Image | Harris Corner Activations |
 | :--- | :--- |
 | <img src="docs/harris_examples/a-27-crop.png" height=300> | <img src="docs/harris_examples/a-27-out.png" height=300> |
+
+# Injection and Extraction Part (Ajinkya and Alexander)
+
+For the injection part we take the ground truth text file and insert the answers on a blank form using an encrypted bar code. For the injection part we create a 85 X 5 matrix where row corresponds to the question number and column corresponds to the option marked per question. We then go on to mark pixels in this array using a thresholding strategy. In order to ensure that the bar code is robust to changes in the pixel shifting, we use Haris corner detection to first get coordinates of the top left hand corner of the bar code and then we move on to extract the array to decode it. Inorder to ensure that students are not able to recognize patterns in the bar code, we randomly assign a roll value using a randomizer to roll the entire matrix so that the starting and the end point of the matrix are shifted thereby masking it evidently from students. To make it robust to pixel shifting we have blown up the size of eacch window from 1 X 1 to 4 X 4 inorder to deal with noise introduced by scanning the printed image. Thus we know 340 X 20 matrix which will also be robust to slanted barcode boxes as we take the mean for every window. 
+
+For the decoding part we reverse the entire process and the secret rolling number for the array will be used to further get a list of answers from the barcode to create the text file. 
+
+Images of the barcode after rolling obfuscation(before windowing):
+
+![image](https://media.github.iu.edu/user/18573/files/a3ef0f98-25cb-4ad6-a1c9-e0fdbf1f37a7)
+
+
+Images of the barcode after expanding and rolling obfuscation:
+
+![WhatsApp Image 2022-02-20 at 8 47 30 PM](https://media.github.iu.edu/user/18573/files/886dc429-5bea-4bcc-acbe-c81e374b8de0)
