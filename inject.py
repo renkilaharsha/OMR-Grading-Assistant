@@ -8,8 +8,12 @@ from PIL import ImageOps
 import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
+import sys
 
-f = open("test-images/a-27_groundtruth.txt",'r')
+blank_form = sys.argv[1]
+answers_txt = sys.argv[2]
+name_final_img = sys.argv[3]
+f = open(answers_txt,'r')
 list_all_ans = []
 
 dict_options = {'A':0,'B':1,'C':2,'D':3,'E':4}
@@ -20,12 +24,12 @@ for i in range(85):
     list_all_ans.append(list_qs)
 
 
-print(list_all_ans)
+# print(list_all_ans)
 
 list_encoded = []
 for i in list_all_ans:
     list_chars= [char for char in i[1]]
-    print(list_chars)
+    # print(list_chars)
     list_encoded.append([dict_options[char] for char in list_chars])
 
 np_arr_mcq = np.ones((5, 85))
@@ -35,7 +39,7 @@ for idx1, chars in enumerate(list_encoded):
          np_arr_mcq[char, idx1] = 200
 
 
-blank_form_img = Image.open("test-images/blank_form.jpg")
+blank_form_img = Image.open(blank_form)
 gray_image = ImageOps.grayscale(blank_form_img)
 np_form = np.array(gray_image)
 
@@ -51,4 +55,4 @@ np_form[396:400, 396:400] = 0
 
 # We'll convert the numpy array back into a form and we'll save it.
 
-Image.fromarray(np_form).save("injected_images.jpg")
+Image.fromarray(np_form).save(name_final_img)

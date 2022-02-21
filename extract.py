@@ -6,9 +6,11 @@ from PIL import ImageOps
 import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
+import sys
 
-
-raw_image = Image.open("injected_images.jpg")
+injected_img = sys.argv[1]
+output_file_name = sys.argv[2]
+raw_image = Image.open(injected_img)
 gray_image = ImageOps.grayscale(raw_image)
 inv_gray_image = ImageOps.invert(gray_image)
 
@@ -31,7 +33,7 @@ for corner in corners:
 all_corners.sort(key=lambda x: x[1])
 top_left = all_corners[0][0]
 
-print(top_left)
+# print(top_left)
 
 plt.imshow(np_crop)
 
@@ -63,4 +65,9 @@ for i in range(85):
             str_init+=dict_reverse[j]
     list_final_ans.append(str_init)
 
-print(list_final_ans)
+# print(list_final_ans)
+extract_text = open(output_file_name,'w')
+for idx,ans in enumerate(list_final_ans):
+    extract_text.write(f"{idx+1} {ans}\n")
+extract_text.close()
+
