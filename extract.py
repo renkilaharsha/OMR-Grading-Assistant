@@ -10,7 +10,6 @@ from PIL import Image
 from PIL import ImageOps
 import numpy as np
 
-
 def backward(vec):
     """Invert the `forward` function."""
     return np.roll(np.roll(vec, -1, 0), -2, 1)

@@ -122,7 +122,7 @@ if __name__ == "__main__":
 
     final_pos_image = Image.open("classify/training_data/positives/" + test_pos)
     final_neg_image = Image.open("classify/training_data/negatives/" + test_neg)
-    weird_image = Image.open("docs/handwritten/weird_case_abc.png")
+    weird_image = Image.open("../docs/handwritten/weird_case_abc.png")
 
     print("I'll demonstrate performance on three unseen examples:\n")
 
