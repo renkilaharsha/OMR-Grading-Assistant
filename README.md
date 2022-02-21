@@ -602,3 +602,7 @@ Images of the barcode after rolling obfuscation(before windowing):
 Images of the barcode after expanding and rolling obfuscation:
 
 ![WhatsApp Image 2022-02-20 at 8 47 30 PM](https://media.github.iu.edu/user/18573/files/886dc429-5bea-4bcc-acbe-c81e374b8de0)
+
+Answer Sheet after Injection:
+![injected](https://media.github.iu.edu/user/18573/files/9ed189a8-2134-4374-aa0e-bde7fa6e9ad6)
+
