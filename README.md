@@ -43,7 +43,6 @@ As two methods are providing the same accuracy numbers but the time taken to ext
 
 ---
 
-
 ### Alexander contributed:
 
 - **Naive Bayes for Handwritten Letter Recognition**
