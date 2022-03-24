@@ -1,0 +1,4 @@
+***** Running 'python3 inject.py a1_autograding_files/blank_form.jpg a1_autograding_files/a-3.txt a1_autograding_files/a-3_injected.png' *****
+***** Running 'python3 extract.py a1_autograding_files/a-3_injected.png a1_autograding_files/a-3_extracted.txt' *****
+***** Running 'python3 inject.py a1_autograding_files/blank_form.jpg a1_autograding_files/a-3.txt a1_autograding_files/a-3_injected.png' *****
+***** Running 'python3 extract.py a1_autograding_files/a-3_injected.png a1_autograding_files/a-3_extracted.txt' *****

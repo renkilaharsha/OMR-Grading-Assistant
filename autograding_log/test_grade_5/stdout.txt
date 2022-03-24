@@ -1,0 +1,2 @@
+***** Running 'python3 grade.py a1_autograding_files/a-27.jpg a1_autograding_files/a-27_detected.txt' *****
+Total time to extract :  0.9907970428466797

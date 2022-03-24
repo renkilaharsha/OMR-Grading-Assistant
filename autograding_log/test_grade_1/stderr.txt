@@ -1,0 +1,10 @@
+***** Running 'python3 grade.py a1_autograding_files/a-3.jpg a1_autograding_files/a-3_detected.txt' *****
+Unable to init server: Could not connect: Connection refused
+Unable to init server: Could not connect: Connection refused
+
+(grade.py:2202032): Gdk-CRITICAL **: 18:28:00.813: gdk_cursor_new_for_display: assertion 'GDK_IS_DISPLAY (display)' failed
+***** Running 'python3 grade.py a1_autograding_files/a-3.jpg a1_autograding_files/a-3_detected.txt' *****
+Unable to init server: Could not connect: Connection refused
+Unable to init server: Could not connect: Connection refused
+
+(grade.py:2922297): Gdk-CRITICAL **: 22:14:32.679: gdk_cursor_new_for_display: assertion 'GDK_IS_DISPLAY (display)' failed

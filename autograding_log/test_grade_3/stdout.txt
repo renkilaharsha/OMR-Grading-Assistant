@@ -1,0 +1,4 @@
+***** Running 'python3 grade.py a1_autograding_files/c-33.jpg a1_autograding_files/c-33_detected.txt' *****
+Total time to extract :  1.0217697620391846
+***** Running 'python3 grade.py a1_autograding_files/c-33.jpg a1_autograding_files/c-33_detected.txt' *****
+Total time to extract :  0.9774346351623535
